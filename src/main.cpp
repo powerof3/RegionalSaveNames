@@ -6,21 +6,32 @@ namespace RegionalSaveNames
 		{
 			return;
 		}
-		static inline constexpr size_t size = 0x4F1;
+		static inline constexpr size_t size = 0x1DC;
 	};
 
 	void Install()
 	{
-		REL::Relocation<std::uintptr_t> target{ REL::ID(34874) };
+		REL::Relocation<std::uintptr_t> target{ REL::ID(35785) };
 		stl::asm_replace<DoNameSave>(target.address());
 	}
 }
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
+	SKSE::PluginVersionData v;
+	v.PluginVersion(Version::MAJOR);
+	v.PluginName("Regional Save Names");
+	v.AuthorName("powerofthree");
+	v.UsesAddressLibrary(true);
+	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
+
+	return v;
+}();
+
+void InitializeLog()
 {
 	auto path = logger::log_directory();
 	if (!path) {
-		return false;
+		stl::report_and_fail("Failed to find standard logging directory"sv);
 	}
 
 	*path /= fmt::format(FMT_STRING("{}.log"), Version::PROJECT);
@@ -28,34 +39,23 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 	auto log = std::make_shared<spdlog::logger>("global log"s, std::move(sink));
 
+#ifndef NDEBUG
+	log->set_level(spdlog::level::trace);
+#else
 	log->set_level(spdlog::level::info);
 	log->flush_on(spdlog::level::info);
+#endif
 
 	spdlog::set_default_logger(std::move(log));
-	spdlog::set_pattern("[%H:%M:%S:%e] %v"s);
+	spdlog::set_pattern("[%H:%M:%S] %v"s);
 
 	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
-
-	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = "Regional Save Names";
-	a_info->version = Version::MAJOR;
-
-	if (a_skse->IsEditor()) {
-		logger::critical("Loaded in editor, marking as incompatible"sv);
-		return false;
-	}
-
-	const auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_1_5_39) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
-		return false;
-	}
-
-	return true;
 }
 
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {
+	InitializeLog();
+
 	logger::info("loaded plugin");
 
 	SKSE::Init(a_skse);
