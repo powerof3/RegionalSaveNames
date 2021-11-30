@@ -1,0 +1,13 @@
+{
+  "name": "regional-save-names",
+  "version-string": "1.2.0",
+  "description": "Regional Save Names",
+  "homepage": "",
+  "license": "MIT",
+  "dependencies": [
+    "boost-stl-interfaces",
+    "rsm-binary-io",
+    "spdlog",
+    "xbyak"
+  ]
+}
