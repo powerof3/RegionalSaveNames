@@ -14,6 +14,10 @@ SKSE plugin that fixes saves not being named after the region they were saved in
 	* You need to build from the powerof3/dev branch
 	* Add this as as an environment variable `CommonLibSSEPath`
 
+## User Requirements
+* [Address Library for SKSE](https://www.nexusmods.com/skyrimspecialedition/mods/32444)
+	* Needed for SSE/AE
+
 ## Register Visual Studio as a Generator
 * Open `x64 Native Tools Command Prompt`
 * Run `cmake`
@@ -23,7 +27,22 @@ SKSE plugin that fixes saves not being named after the region they were saved in
 ```
 git clone https://github.com/powerof3/RegionalSaveNames.git
 cd RegionalSaveNames
-cmake -B build -S .
+# pull commonlib /extern to override the path settings
+git submodule init
+# to update submodules to checked in build
+git submodule update
 ```
+
+### SSE
+```
+cmake --preset vs2022-windows-vcpkg-se
+cmake --build build --config Release
+```
+### VR
+```
+cmake --preset vs2022-windows-vcpkg-ae
+cmake --build buildvr --config Release
+```
+
 ## License
 [MIT](LICENSE)
